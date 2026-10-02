@@ -1,0 +1,11 @@
+com/example/resumescreener/PdfTextExtractor.class
+com/example/resumescreener/CandidateRepository.class
+com/example/resumescreener/UploadResult.class
+com/example/resumescreener/ResumeParser.class
+com/example/resumescreener/FastApiNotifier.class
+com/example/resumescreener/ResumeController.class
+com/example/resumescreener/ResumeService.class
+com/example/resumescreener/ResumeScreenerApplication.class
+com/example/resumescreener/UploadResult$FileResult.class
+com/example/resumescreener/Candidate.class
+com/example/resumescreener/ResumeParser$ParsedResume.class

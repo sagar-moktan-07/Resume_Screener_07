@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Screener</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f6f9; color: #222; }
+        header { background: #001f3f; color: #fff; padding: 18px 32px; border-bottom: 3px solid #FFD700; }
+        main { max-width: 1200px; margin: 24px auto; padding: 0 16px; }
+        .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 24px;
+                box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+        button { background: #FFD700; color: #001f3f; border: 0; padding: 10px 22px;
+                 border-radius: 8px; font-weight: 700; cursor: pointer; margin-left: 8px; }
+        button:disabled { opacity: .5; cursor: not-allowed; }
+        .wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background: #001f3f; color: #FFD700; text-align: left; padding: 10px; }
+        td { padding: 10px; border-bottom: 1px solid #e5e5e5; vertical-align: top;
+             white-space: pre-wrap; max-width: 260px; }
+    </style>
+</head>
+<body>
+    <header><h2>Resume Screener</h2></header>
+
+    <main>
+        <div class="card">
+            <h3>Upload Resumes</h3>
+            <input type="file" id="files" accept="application/pdf" multiple>
+            <button id="uploadBtn">Upload &amp; Extract</button>
+            <p id="status"></p>
+        </div>
+
+        <div class="card">
+            <h3>Candidates</h3>
+            <div class="wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Name</th><th>Email</th><th>Phone</th>
+                            <th>Qualifications</th><th>Skills</th><th>Experience</th><th>File</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rows"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const rowsEl = document.getElementById('rows');
+        const btn = document.getElementById('uploadBtn');
+
+        btn.addEventListener('click', upload);
+
+        async function upload() {
+            const files = document.getElementById('files').files;
+            if (!files.length) {
+                statusEl.textContent = 'Select at least one PDF.';
+                return;
+            }
+
+            const form = new FormData();
+            for (const f of files) form.append('files', f);
+
+            btn.disabled = true;
+            statusEl.textContent = 'Uploading...';
+
+            try {
+                const res = await fetch('/api/resumes/upload', { method: 'POST', body: form });
+                if (!res.ok) throw new Error('Server returned ' + res.status);
+                const data = await res.json();
+
+                statusEl.textContent =
+                    `Stored: ${data.stored} | Failed: ${data.failed} | FastAPI notified: ${data.fastApiNotified ? 'yes' : 'no'}`;
+                await loadCandidates();
+            } catch (e) {
+                statusEl.textContent = 'Error: ' + e.message;
+            }
+            btn.disabled = false;
+        }
+
+        async function loadCandidates() {
+            const res = await fetch('/api/candidates');
+            const list = await res.json();
+            rowsEl.innerHTML = '';
+
+            for (const c of list) {
+                const tr = document.createElement('tr');
+                [c.id, c.fullName, c.email, c.phone,
+                 c.qualifications, c.skills, c.experience, c.fileName].forEach(value => {
+                    const td = document.createElement('td');
+                    td.textContent = value ?? '';   // textContent keeps resume text safe from HTML injection
+                    tr.appendChild(td);
+                });
+                rowsEl.appendChild(tr);
+            }
+        }
+
+        loadCandidates();
+    </script>
+</body>
+</html>

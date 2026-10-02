@@ -1,0 +1,9 @@
+/home/moktan/SgrTmg/codem/resume-screener/src/main/java/com/example/resumescreener/Candidate.java
+/home/moktan/SgrTmg/codem/resume-screener/src/main/java/com/example/resumescreener/CandidateRepository.java
+/home/moktan/SgrTmg/codem/resume-screener/src/main/java/com/example/resumescreener/FastApiNotifier.java
+/home/moktan/SgrTmg/codem/resume-screener/src/main/java/com/example/resumescreener/PdfTextExtractor.java
+/home/moktan/SgrTmg/codem/resume-screener/src/main/java/com/example/resumescreener/ResumeController.java
+/home/moktan/SgrTmg/codem/resume-screener/src/main/java/com/example/resumescreener/ResumeParser.java
+/home/moktan/SgrTmg/codem/resume-screener/src/main/java/com/example/resumescreener/ResumeScreenerApplication.java
+/home/moktan/SgrTmg/codem/resume-screener/src/main/java/com/example/resumescreener/ResumeService.java
+/home/moktan/SgrTmg/codem/resume-screener/src/main/java/com/example/resumescreener/UploadResult.java
