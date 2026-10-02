@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Resume Screener</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <header>
+        <h2>Admin Panel</h2>
+        <a href="/index.html">&larr; Back to Dashboard</a>
+        <form method="post" action="/logout"><button class="btn btn-small">Logout</button></form>
+    </header>
+
+    <main>
+        <div class="card">
+            <h3>Users</h3>
+            <p class="msg" id="msg"></p>
+            <div class="wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Username</th><th>Name</th><th>Email</th>
+                            <th>Role</th><th>Status</th><th>Created</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rows"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const rowsEl = document.getElementById('rows');
+        const msgEl = document.getElementById('msg');
+        let currentUser = null;
+
+        async function api(url, options = {}) {
+            const res = await fetch(url, options);
+            if (res.status === 401 || res.redirected) {
+                window.location.href = '/login.html';
+                throw new Error('Not logged in');
+            }
+            return res;
+        }
+
+        function showMsg(text, isError) {
+            msgEl.className = 'msg ' + (isError ? 'error' : 'ok');
+            msgEl.textContent = text;
+        }
+
+        function cell(text) {
+            const td = document.createElement('td');
+            td.textContent = text ?? '';       // textContent keeps user-supplied text safe
+            return td;
+        }
+
+        function makeButton(label, className, onClick) {
+            const b = document.createElement('button');
+            b.className = className;
+            b.textContent = label;
+            b.addEventListener('click', onClick);
+            return b;
+        }
+
+        async function send(url, method, body) {
+            const options = { method };
+            if (body) {
+                options.headers = { 'Content-Type': 'application/json' };
+                options.body = JSON.stringify(body);
+            }
+            const res = await api(url, options);
+            if (res.ok) {
+                showMsg('Done.', false);
+            } else {
+                const data = await res.json().catch(() => ({}));
+                showMsg(data.message || 'Action failed', true);
+            }
+            load();
+        }
+
+        function buildRow(u) {
+            const tr = document.createElement('tr');
+            const isMe = u.username === currentUser;
+
+            tr.append(cell(u.id), cell(u.username), cell(u.fullName), cell(u.email));
+
+            // Role dropdown
+            const roleTd = document.createElement('td');
+            const select = document.createElement('select');
+            ['USER', 'ADMIN'].forEach(r => {
+                const o = document.createElement('option');
+                o.value = r;
+                o.textContent = r;
+                select.appendChild(o);
+            });
+            select.value = u.role;
+            select.disabled = isMe;
+            select.addEventListener('change', () =>
+                send(`/api/admin/users/${u.id}/role`, 'PUT', { role: select.value }));
+            roleTd.appendChild(select);
+            tr.appendChild(roleTd);
+
+            tr.append(
+                cell(u.enabled ? 'Active' : 'Disabled'),
+                cell(u.createdAt ? u.createdAt.replace('T', ' ').substring(0, 16) : '')
+            );
+
+            // Action buttons
+            const actions = document.createElement('td');
+            if (isMe) {
+                actions.textContent = '(you)';
+            } else {
+                actions.append(
+                    makeButton(u.enabled ? 'Disable' : 'Enable', 'btn btn-small',
+                        () => send(`/api/admin/users/${u.id}/enabled`, 'PUT', { enabled: !u.enabled })),
+                    ' ',
+                    makeButton('Delete', 'btn btn-small btn-danger', () => {
+                        if (confirm(`Delete user "${u.username}"?`)) {
+                            send(`/api/admin/users/${u.id}`, 'DELETE');
+                        }
+                    })
+                );
+            }
+            tr.appendChild(actions);
+            return tr;
+        }
+
+        async function load() {
+            const me = await (await api('/api/auth/me')).json();
+            currentUser = me.username;
+
+            const users = await (await api('/api/admin/users')).json();
+            rowsEl.innerHTML = '';
+            users.forEach(u => rowsEl.appendChild(buildRow(u)));
+        }
+
+        load();
+    </script>
+</body>
+</html>

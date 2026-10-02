@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Resume Screener</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <header><h2>Resume Screener</h2></header>
+
+    <main>
+        <div class="card auth-box">
+            <h2>Log in</h2>
+
+            <form method="post" action="/login">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autofocus>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+
+                <button class="btn" type="submit" style="margin-top:18px; width:100%">Log in</button>
+            </form>
+
+            <p class="msg" id="msg"></p>
+            <p>No account? <a href="/signup.html">Sign up</a></p>
+        </div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const msg = document.getElementById('msg');
+
+        if (params.has('error')) {
+            msg.className = 'msg error';
+            msg.textContent = 'Invalid username or password, or the account is disabled.';
+        } else if (params.has('logout')) {
+            msg.className = 'msg ok';
+            msg.textContent = 'You have been logged out.';
+        } else if (params.has('registered')) {
+            msg.className = 'msg ok';
+            msg.textContent = 'Account created. Please log in.';
+        }
+    </script>
+</body>
+</html>
