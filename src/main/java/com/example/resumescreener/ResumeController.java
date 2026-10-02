@@ -2,6 +2,7 @@ package com.example.resumescreener;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,5 +28,15 @@ public class ResumeController {
     @GetMapping("/candidates")
     public List<Candidate> candidates() {
         return repository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+    }
+
+    // ADMIN only (enforced in SecurityConfig)
+    @DeleteMapping("/candidates/{id}")
+    public ResponseEntity<Void> deleteCandidate(@PathVariable Long id) {
+        if (!repository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

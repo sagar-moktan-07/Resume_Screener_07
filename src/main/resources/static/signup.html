@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up - Resume Screener</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <header><h2>Resume Screener</h2></header>
+
+    <main>
+        <div class="card auth-box">
+            <h2>Create account</h2>
+
+            <form id="signupForm">
+                <label for="fullName">Full name</label>
+                <input type="text" id="fullName" required>
+
+                <label for="username">Username</label>
+                <input type="text" id="username" required>
+
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+
+                <label for="password">Password (min 8 characters)</label>
+                <input type="password" id="password" required>
+
+                <button class="btn" type="submit" style="margin-top:18px; width:100%">Sign up</button>
+            </form>
+
+            <p class="msg" id="msg"></p>
+            <p>Already have an account? <a href="/login.html">Log in</a></p>
+        </div>
+    </main>
+
+    <script>
+        const msg = document.getElementById('msg');
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const body = {
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    window.location.href = '/login.html?registered';
+                } else {
+                    msg.className = 'msg error';
+                    msg.textContent = data.message || 'Sign up failed';
+                }
+            } catch (err) {
+                msg.className = 'msg error';
+                msg.textContent = 'Could not reach the server.';
+            }
+        });
+    </script>
+</body>
+</html>
