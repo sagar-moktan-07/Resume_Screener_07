@@ -1,0 +1,6 @@
+{
+  "title": "Backend Developer (Python)",
+  "description": "We are looking for a backend developer to build and maintain REST APIs, work with SQL databases, and integrate AI services into our products. At least 1 year of hands-on experience is preferred. A degree in IT or computer science is a plus.",
+  "required_skills": ["Python", "FastAPI", "SQL", "REST", "Git", "Docker"],
+  "top_n": 7
+}
