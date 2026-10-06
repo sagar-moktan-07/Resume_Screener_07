@@ -23,13 +23,15 @@
         </div>
 
         <div class="card">
-            <h3>Candidates</h3>
+            <h3 id="listTitle">My Uploaded Resumes</h3>
+            <p class="msg" id="emptyMsg"></p>
             <div class="wrap">
                 <table>
                     <thead>
                         <tr>
                             <th>ID</th><th>Name</th><th>Email</th><th>Phone</th>
                             <th>Qualifications</th><th>Skills</th><th>Experience</th><th>File</th>
+                            <th id="uploaderHeader" style="display:none">Uploaded by</th>
                             <th id="actionsHeader" style="display:none">Actions</th>
                         </tr>
                     </thead>
@@ -42,6 +44,7 @@
     <script>
         const statusEl = document.getElementById('status');
         const rowsEl = document.getElementById('rows');
+        const emptyEl = document.getElementById('emptyMsg');
         const btn = document.getElementById('uploadBtn');
         let isAdmin = false;
 
@@ -66,6 +69,8 @@
                 // Hiding these is cosmetic only. The server enforces the real rules.
                 document.getElementById('adminLink').style.display = 'inline';
                 document.getElementById('actionsHeader').style.display = 'table-cell';
+                document.getElementById('uploaderHeader').style.display = 'table-cell';
+                document.getElementById('listTitle').textContent = 'All Candidates (admin view)';
             }
             loadCandidates();
         }
@@ -101,14 +106,18 @@
             const res = await api('/api/candidates');
             const list = await res.json();
             rowsEl.innerHTML = '';
+            emptyEl.textContent = list.length ? '' : 'No resumes yet. Upload some PDFs above.';
 
             for (const c of list) {
                 const tr = document.createElement('tr');
 
-                [c.id, c.fullName, c.email, c.phone,
-                 c.qualifications, c.skills, c.experience, c.fileName].forEach(value => {
+                const values = [c.id, c.fullName, c.email, c.phone,
+                                c.qualifications, c.skills, c.experience, c.fileName];
+                if (isAdmin) values.push(c.uploadedByUsername ?? '(unknown)');
+
+                values.forEach(value => {
                     const td = document.createElement('td');
-                    td.textContent = value ?? '';
+                    td.textContent = value ?? '';       // textContent keeps resume text safe from HTML injection
                     tr.appendChild(td);
                 });
 

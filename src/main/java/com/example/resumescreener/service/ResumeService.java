@@ -5,6 +5,7 @@ import com.example.resumescreener.dto.UploadResult;
 import com.example.resumescreener.dto.UploadResult.FileResult;
 import com.example.resumescreener.entity.Candidate;
 import com.example.resumescreener.repository.CandidateRepository;
+import com.example.resumescreener.service.ResumeParser.ParsedResume;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +31,7 @@ public class ResumeService {
 
     // Not @Transactional on purpose: each save() commits on its own,
     // so by the time we notify FastAPI every row is already in the database.
-    public UploadResult processBatch(List<MultipartFile> files) {
+    public UploadResult processBatch(List<MultipartFile> files, Long ownerId, String ownerUsername) {
         String batchId = UUID.randomUUID().toString();
         List<FileResult> results = new ArrayList<>();
         List<Long> savedIds = new ArrayList<>();
@@ -50,9 +51,8 @@ public class ResumeService {
                     continue;
                 }
 
-                ResumeParser.ParsedResume p = parser.parse(text, name);
+                ParsedResume p = parser.parse(text, name);
 
-                // This save() runs one INSERT INTO candidates (...) per resume
                 Candidate saved = repository.save(new Candidate(
                         name,
                         cut(p.fullName(), 255),
@@ -61,7 +61,9 @@ public class ResumeService {
                         cut(p.qualifications(), 10000),
                         cut(p.skills(), 10000),
                         cut(p.experience(), 10000),
-                        cut(text, 100000)));
+                        cut(text, 100000),
+                        ownerId,
+                        ownerUsername));
 
                 savedIds.add(saved.getId());
                 results.add(new FileResult(name, "STORED", "OK", saved.getId()));

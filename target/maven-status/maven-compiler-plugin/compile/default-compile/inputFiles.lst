@@ -5,6 +5,7 @@
 /home/sagar/codem/vscodem/Resume_Screener_07/src/main/java/com/example/resumescreener/controller/AdminController.java
 /home/sagar/codem/vscodem/Resume_Screener_07/src/main/java/com/example/resumescreener/controller/AuthController.java
 /home/sagar/codem/vscodem/Resume_Screener_07/src/main/java/com/example/resumescreener/controller/ResumeController.java
+/home/sagar/codem/vscodem/Resume_Screener_07/src/main/java/com/example/resumescreener/dto/CandidateView.java
 /home/sagar/codem/vscodem/Resume_Screener_07/src/main/java/com/example/resumescreener/dto/SignupRequest.java
 /home/sagar/codem/vscodem/Resume_Screener_07/src/main/java/com/example/resumescreener/dto/UploadResult.java
 /home/sagar/codem/vscodem/Resume_Screener_07/src/main/java/com/example/resumescreener/dto/UserView.java

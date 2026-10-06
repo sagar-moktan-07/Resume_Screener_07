@@ -4,23 +4,17 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "candidates")
+@Table(name = "candidates",
+       indexes = @Index(name = "idx_candidates_uploaded_by", columnList = "uploaded_by_id"))
 public class Candidate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
-
-    @Column(name = "full_name", length = 255)
     private String fullName;
-
-    @Column(length = 255)
     private String email;
-
-    @Column(length = 255)
     private String phone;
 
     @Column(columnDefinition = "TEXT")
@@ -32,20 +26,25 @@ public class Candidate {
     @Column(columnDefinition = "TEXT")
     private String experience;
 
-    @Column(name = "raw_text", columnDefinition = "TEXT")
+    // Full text of the PDF, kept so the AI model can read it
+    @Column(columnDefinition = "TEXT")
     private String rawText;
 
-    @Column(name = "uploaded_at", nullable = false)
-    private LocalDateTime uploadedAt = LocalDateTime.now();
+    // Who uploaded this resume. The id is used for access control (ids are never reused).
+    // The username is only a copy for showing in the admin view.
+    @Column(name = "uploaded_by_id")
+    private Long uploadedById;
 
-    /** DB default is 'upload'; Hibernate sends this so NOT NULL is always satisfied. */
-    @Column(nullable = false, length = 20)
-    private String source = "upload";
+    @Column(name = "uploaded_by_username", length = 50)
+    private String uploadedByUsername;
+
+    private LocalDateTime uploadedAt = LocalDateTime.now();
 
     protected Candidate() {}
 
     public Candidate(String fileName, String fullName, String email, String phone,
-                     String qualifications, String skills, String experience, String rawText) {
+                     String qualifications, String skills, String experience, String rawText,
+                     Long uploadedById, String uploadedByUsername) {
         this.fileName = fileName;
         this.fullName = fullName;
         this.email = email;
@@ -54,7 +53,8 @@ public class Candidate {
         this.skills = skills;
         this.experience = experience;
         this.rawText = rawText;
-        this.source = "upload";
+        this.uploadedById = uploadedById;
+        this.uploadedByUsername = uploadedByUsername;
     }
 
     public Long getId() { return id; }
@@ -66,6 +66,7 @@ public class Candidate {
     public String getSkills() { return skills; }
     public String getExperience() { return experience; }
     public String getRawText() { return rawText; }
+    public Long getUploadedById() { return uploadedById; }
+    public String getUploadedByUsername() { return uploadedByUsername; }
     public LocalDateTime getUploadedAt() { return uploadedAt; }
-    public String getSource() { return source; }
 }
